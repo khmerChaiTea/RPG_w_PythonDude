@@ -35,7 +35,14 @@ class Game:
             for j, column in enumerate (row):
                 Ground(self,j,i)
                 if column == 'B':
-                    Block(self, j, i)
+                    block = Block(self, j, i)
+                    self.all_sprites.change_layer(block, 1)  # Set block layer
+                if column == 'P':
+                    self.player = Player(self, j, i)
+                    self.all_sprites.change_layer(self.player, 2)  # Set player layer
+                if column == 'E':
+                    enemy = Enemy(self, j, i)
+                    self.all_sprites.change_layer(enemy, 1)  # Set enemy layer
     
     def update(self):
         self.all_sprites.update()

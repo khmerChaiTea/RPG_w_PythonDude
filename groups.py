@@ -1,14 +1,15 @@
 import pygame
 
-class AllSprites(pygame.sprite.Group):
-    """Custom sprite group for handling all sprites."""
+class AllSprites(pygame.sprite.LayeredUpdates):
+    """Custom sprite group that supports layers."""
+    
     def __init__(self):
         super().__init__()
 
-    def draw(self, screen):
-        """Override draw to handle all sprite layers (optional)."""
-        super().draw(screen)
-
     def update(self, *args):
-        """Override update to apply any custom update logic."""
+        """Override update to apply any custom logic, if needed."""
         super().update(*args)
+
+    def add_sprite(self, sprite, layer=0):
+        """Adds a sprite to a specific layer."""
+        self.add(sprite, layer=layer)

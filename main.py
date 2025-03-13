@@ -11,6 +11,13 @@ class Game:
         self.clock = pygame.time.Clock()
         self.running = True
         
+        # Load spritesheets
+        self.terrain_spritesheet = Spritesheet('assets/images/terrain.png')
+        self.player_spritesheet = Spritesheet('assets/images/cats.png')
+        self.enemy_spritesheet = Spritesheet('assets/images/evil.png')
+        self.weapon_spritesheet = Spritesheet('assets/images/sword.png')
+        self.bullet_spritesheet = Spritesheet('assets/images/powerBall.png')
+        
         # Create sprite groups
         self.all_sprites = AllSprites()
         self.blocks = pygame.sprite.Group()
@@ -24,7 +31,11 @@ class Game:
         self.create_tile_map()
         
     def create_tile_map(self):
-        pass
+        for i, row in enumerate(WORLD_MAP):
+            for j, column in enumerate (row):
+                Ground(self,j,i)
+                if column == 'B':
+                    Block(self, j, i)
     
     def update(self):
         self.all_sprites.update()
@@ -35,7 +46,7 @@ class Game:
                 self.running = False
                 
     def draw(self):
-        self.screen.fill(BLACK)
+        self.screen.fill(BG_COLOR)
         self.all_sprites.draw(self.screen)
         pygame.display.update()
         self.clock.tick(FPS)

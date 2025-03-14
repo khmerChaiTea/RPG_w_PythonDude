@@ -1,3 +1,4 @@
+import math
 import pygame, random
 from settings import *
 from groups import AllSprites
@@ -39,15 +40,9 @@ class Player(pygame.sprite.Sprite):
         self.x_change = 0
         self.y_change = 0
         
-        self.direction = "down"
+        self.animationCounter = 0
         
-    def update(self):
-        self.move()
-        self.rect.x += self.x_change
-        self.rect.y += self.y_change
-        
-        self.x_change = 0
-        self.y_change = 0
+        self.direction = "right"
         
     def move(self):
         pressed = pygame.key.get_pressed()
@@ -65,6 +60,73 @@ class Player(pygame.sprite.Sprite):
             self.y_change = PLAYER_STEPS
             self.direction = "down"
             
+    def update(self):
+        self.move()
+        self.animation()
+        self.rect.x += self.x_change
+        self.rect.y += self.y_change
+        
+        self.x_change = 0
+        self.y_change = 0
+        
+    def animation(self):
+        
+        downAnimation = [self.game.player_spritesheet.get_image(0, 0, TILESIZE, TILESIZE),
+                         self.game.player_spritesheet.get_image(32, 0, TILESIZE, TILESIZE),
+                         self.game.player_spritesheet.get_image(64, 0, TILESIZE, TILESIZE)]
+
+        leftAnimation = [self.game.player_spritesheet.get_image(0, 32, TILESIZE, TILESIZE),
+                         self.game.player_spritesheet.get_image(32, 32, TILESIZE, TILESIZE),
+                         self.game.player_spritesheet.get_image(64, 32, TILESIZE, TILESIZE)]
+
+        rightAnimation = [self.game.player_spritesheet.get_image(0, 64, TILESIZE, TILESIZE),
+                         self.game.player_spritesheet.get_image(32, 64, TILESIZE, TILESIZE),
+                         self.game.player_spritesheet.get_image(64, 64, TILESIZE, TILESIZE)]
+
+        upAnimation = [self.game.player_spritesheet.get_image(0, 96, TILESIZE, TILESIZE),
+                         self.game.player_spritesheet.get_image(32, 96, TILESIZE, TILESIZE),
+                         self.game.player_spritesheet.get_image(64, 96, TILESIZE, TILESIZE)]
+        
+        if self.direction == "down":
+            if self.y_change == 0:
+                self.image = self.game.player_spritesheet.get_image(32, 0, TILESIZE, TILESIZE)
+                
+            else:
+                self.image = downAnimation[math.floor(self.animationCounter)]
+                self.animationCounter += 0.2
+                if self.animationCounter >= 3:
+                    self.animationCounter = 0
+
+        if self.direction == "up":
+            if self.y_change == 0:
+                self.image = self.game.player_spritesheet.get_image(32, 96, TILESIZE, TILESIZE)
+                
+            else:
+                self.image = upAnimation[math.floor(self.animationCounter)]
+                self.animationCounter += 0.2
+                if self.animationCounter >= 3:
+                    self.animationCounter = 0
+
+        if self.direction == "left":
+            if self.x_change == 0:
+                self.image = self.game.player_spritesheet.get_image(32, 32, TILESIZE, TILESIZE)
+                
+            else:
+                self.image = leftAnimation[math.floor(self.animationCounter)]
+                self.animationCounter += 0.2
+                if self.animationCounter >= 3:
+                    self.animationCounter = 0
+
+        if self.direction == "right":
+            if self.x_change == 0:
+                self.image = self.game.player_spritesheet.get_image(32, 64, TILESIZE, TILESIZE)
+                
+            else:
+                self.image = rightAnimation[math.floor(self.animationCounter)]
+                self.animationCounter += 0.2
+                if self.animationCounter >= 3:
+                    self.animationCounter = 0
+                         
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
         super().__init__(game.all_sprites, game.enemies)  # Add to all_sprites and enemies group
@@ -77,28 +139,15 @@ class Enemy(pygame.sprite.Sprite):
         self.x_change = 0
         self.y_change = 0
         
+        self.animationCounter = 1
+        
         self.direction = random.choice(['left', 'right', 'up', 'down'])
         self.numberSteps = random.choice([30, 40, 50, 60, 70, 80, 90])
         self.stallSteps = 120
         self.currentSteps = 0
         
         self.state = "moving"
-        
-    def update(self):
-        self.move()
-        self.rect.x += self.x_change
-        self.rect.y += self.y_change
-        
-        self.x_change = 0
-        self.y_change = 0
-        if self.currentSteps == self.numberSteps:
-            if self.state != "stalling":
-                self.currentSteps = 0
-                
-            self.direction = random.choice(['left', 'right', 'up', 'down'])
-            self.state = "stalling"
-            
-        
+
     def move(self):
         
         if self.state == "moving":
@@ -125,4 +174,76 @@ class Enemy(pygame.sprite.Sprite):
             if self.currentSteps == self.stallSteps:
                 self.state = "moving"
                 self.currentSteps = 0
-            
+                self.direction = random.choice(['left', 'right', 'up', 'down'])
+        
+    def update(self):
+        self.move()
+        self.animation()
+        self.rect.x += self.x_change
+        self.rect.y += self.y_change
+        
+        self.x_change = 0
+        self.y_change = 0
+        if self.currentSteps == self.numberSteps:
+            if self.state != "stalling":
+                self.currentSteps = 0  
+            self.state = "stalling" 
+
+    def animation(self):
+        
+        downAnimation = [self.game.enemy_spritesheet.get_image(0, 0, TILESIZE, TILESIZE),
+                         self.game.enemy_spritesheet.get_image(32, 0, TILESIZE, TILESIZE),
+                         self.game.enemy_spritesheet.get_image(64, 0, TILESIZE, TILESIZE)]
+
+        leftAnimation = [self.game.enemy_spritesheet.get_image(0, 32, TILESIZE, TILESIZE),
+                         self.game.enemy_spritesheet.get_image(32, 32, TILESIZE, TILESIZE),
+                         self.game.enemy_spritesheet.get_image(64, 32, TILESIZE, TILESIZE)]
+
+        rightAnimation = [self.game.enemy_spritesheet.get_image(0, 64, TILESIZE, TILESIZE),
+                         self.game.enemy_spritesheet.get_image(32, 64, TILESIZE, TILESIZE),
+                         self.game.enemy_spritesheet.get_image(64, 64, TILESIZE, TILESIZE)]
+
+        upAnimation = [self.game.enemy_spritesheet.get_image(0, 96, TILESIZE, TILESIZE),
+                         self.game.enemy_spritesheet.get_image(32, 96, TILESIZE, TILESIZE),
+                         self.game.enemy_spritesheet.get_image(64, 96, TILESIZE, TILESIZE)]
+        
+        if self.direction == "down":
+            if self.y_change == 0:
+                self.image = self.game.enemy_spritesheet.get_image(32, 0, TILESIZE, TILESIZE)
+                
+            else:
+                self.image = downAnimation[math.floor(self.animationCounter)]
+                self.animationCounter += 0.2
+                if self.animationCounter >= 3:
+                    self.animationCounter = 0
+
+        if self.direction == "up":
+            if self.y_change == 0:
+                self.image = self.game.enemy_spritesheet.get_image(32, 96, TILESIZE, TILESIZE)
+                
+            else:
+                self.image = upAnimation[math.floor(self.animationCounter)]
+                self.animationCounter += 0.2
+                if self.animationCounter >= 3:
+                    self.animationCounter = 0
+
+        if self.direction == "left":
+            if self.x_change == 0:
+                self.image = self.game.enemy_spritesheet.get_image(32, 32, TILESIZE, TILESIZE)
+                
+            else:
+                self.image = leftAnimation[math.floor(self.animationCounter)]
+                self.animationCounter += 0.2
+                if self.animationCounter >= 3:
+                    self.animationCounter = 0
+
+        if self.direction == "right":
+            if self.x_change == 0:
+                self.image = self.game.enemy_spritesheet.get_image(32, 64, TILESIZE, TILESIZE)
+                
+            else:
+                self.image = rightAnimation[math.floor(self.animationCounter)]
+                self.animationCounter += 0.2
+                if self.animationCounter >= 3:
+                    self.animationCounter = 0
+     

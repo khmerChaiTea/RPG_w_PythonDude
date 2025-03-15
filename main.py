@@ -1,7 +1,7 @@
 import pygame, sys
 from settings import *
 from sprites import *
-from groups import AllSprites
+from pygame.sprite import LayeredUpdates
 
 class Game:
     def __init__(self):
@@ -19,7 +19,7 @@ class Game:
         self.bullet_spritesheet = Spritesheet('assets/images/powerBall.png')
         
         # Create sprite groups
-        self.all_sprites = AllSprites()
+        self.all_sprites = LayeredUpdates()
         self.blocks = pygame.sprite.Group()
         self.water = pygame.sprite.Group()
         self.enemies = pygame.sprite.Group()
@@ -32,20 +32,26 @@ class Game:
         
     def create_tile_map(self):
         for i, row in enumerate(WORLD_MAP):
-            for j, column in enumerate (row):
-                Ground(self,j,i)
+            for j, column in enumerate(row):
+                ground = Ground(self, j, i)
+                self.all_sprites.change_layer(ground, 1)
+                
                 if column == 'B':
                     block = Block(self, j, i)
-                    self.all_sprites.change_layer(block, 1)  # Set block layer
+                    self.blocks.add(block)  # Add block to blocks group
+                    self.all_sprites.change_layer(block, 2)  # Set block layer
                 if column == 'P':
-                    self.player = Player(self, j, i)
-                    self.all_sprites.change_layer(self.player, 2)  # Set player layer
+                    self.player = Player(self, j, i)  # Player initialization
+                    self.all_sprites.change_layer(self.player, 3)  # Set player layer
+                    self.player_group.add(self.player)  # Add player to the player group
                 if column == 'E':
                     enemy = Enemy(self, j, i)
-                    self.all_sprites.change_layer(enemy, 1)  # Set enemy layer
+                    self.enemies.add(enemy)  # Add enemy to enemies group
+                    self.all_sprites.change_layer(enemy, 3)  # Set enemy layer
 
-    def update(self):
-        self.all_sprites.update()
+    def update(self, dt):
+        self.player.update(dt)
+        self.all_sprites.update(dt)
     
     def handle_events(self):
         for event in pygame.event.get():
@@ -60,8 +66,9 @@ class Game:
                     
     def main(self):
         while self.running:
+            dt = self.clock.tick(FPS) / 1000  # Convert milliseconds to seconds
             self.handle_events()
-            self.update()
+            self.update(dt)
             self.draw()
         
 if __name__ == "__main__":

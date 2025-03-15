@@ -18,23 +18,29 @@ class Spritesheet:
 class Ground(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
         super().__init__(game.all_sprites)  # Add to the main sprite group
-        self.image = game.terrain_spritesheet.get_image(447, 353, TILESIZE, TILESIZE)
-        self.rect = self.image.get_rect(topleft=(x * TILESIZE, y * TILESIZE))
+        self.width = TILESIZE
+        self.height = TILESIZE
+        self.image = game.terrain_spritesheet.get_image(447, 353, self.width, self.height)
+        self.rect = self.image.get_rect(topleft=(x * self.width, y * self.height))
 
 class Block(Ground):
     def __init__(self, game, x, y):
         super().__init__(game, x, y)
-        self.image = game.terrain_spritesheet.get_image(991, 542, TILESIZE, TILESIZE)  # Different tile for block
-        self.rect = self.image.get_rect(topleft=(x * TILESIZE, y * TILESIZE))
+        self.width = TILESIZE
+        self.height = TILESIZE
+        self.image = game.terrain_spritesheet.get_image(991, 542, self.width, self.height)  # Different tile for block
+        self.rect = self.image.get_rect(topleft=(x * self.width, y * self.height))
         
 class Player(pygame.sprite.Sprite): 
     def __init__(self, game, x, y):
         super().__init__(game.all_sprites)  # Add to all_sprites group
         game.player_group.add(self)  # Add player separately
+        self.width = TILESIZE
+        self.height = TILESIZE
         
         self.game = game
-        self.image = game.player_spritesheet.get_image(0, 0, TILESIZE, TILESIZE)
-        self.rect = self.image.get_rect(topleft=(x * TILESIZE, y * TILESIZE))
+        self.image = game.player_spritesheet.get_image(0, 0, self.width, self.height)
+        self.rect = self.image.get_rect(topleft=(x * self.width, y * self.height))
         
         # Movement attributes
         self.x_change = 0
@@ -71,25 +77,25 @@ class Player(pygame.sprite.Sprite):
         
     def animation(self):
         
-        downAnimation = [self.game.player_spritesheet.get_image(0, 0, TILESIZE, TILESIZE),
-                         self.game.player_spritesheet.get_image(32, 0, TILESIZE, TILESIZE),
-                         self.game.player_spritesheet.get_image(64, 0, TILESIZE, TILESIZE)]
+        downAnimation = [self.game.player_spritesheet.get_image(0, 0, self.width, self.height),
+                         self.game.player_spritesheet.get_image(32, 0, self.width, self.height),
+                         self.game.player_spritesheet.get_image(64, 0, self.width, self.height)]
 
-        leftAnimation = [self.game.player_spritesheet.get_image(0, 32, TILESIZE, TILESIZE),
-                         self.game.player_spritesheet.get_image(32, 32, TILESIZE, TILESIZE),
-                         self.game.player_spritesheet.get_image(64, 32, TILESIZE, TILESIZE)]
+        leftAnimation = [self.game.player_spritesheet.get_image(0, 32, self.width, self.height),
+                         self.game.player_spritesheet.get_image(32, 32, self.width, self.height),
+                         self.game.player_spritesheet.get_image(64, 32, self.width, self.height)]
 
-        rightAnimation = [self.game.player_spritesheet.get_image(0, 64, TILESIZE, TILESIZE),
-                         self.game.player_spritesheet.get_image(32, 64, TILESIZE, TILESIZE),
-                         self.game.player_spritesheet.get_image(64, 64, TILESIZE, TILESIZE)]
+        rightAnimation = [self.game.player_spritesheet.get_image(0, 64, self.width, self.height),
+                         self.game.player_spritesheet.get_image(32, 64, self.width, self.height),
+                         self.game.player_spritesheet.get_image(64, 64, self.width, self.height)]
 
-        upAnimation = [self.game.player_spritesheet.get_image(0, 96, TILESIZE, TILESIZE),
-                         self.game.player_spritesheet.get_image(32, 96, TILESIZE, TILESIZE),
-                         self.game.player_spritesheet.get_image(64, 96, TILESIZE, TILESIZE)]
+        upAnimation = [self.game.player_spritesheet.get_image(0, 96, self.width, self.height),
+                         self.game.player_spritesheet.get_image(32, 96, self.width, self.height),
+                         self.game.player_spritesheet.get_image(64, 96, self.width, self.height)]
         
         if self.direction == "down":
             if self.y_change == 0:
-                self.image = self.game.player_spritesheet.get_image(32, 0, TILESIZE, TILESIZE)
+                self.image = self.game.player_spritesheet.get_image(32, 0, self.width, self.height)
                 
             else:
                 self.image = downAnimation[math.floor(self.animationCounter)]
@@ -99,7 +105,7 @@ class Player(pygame.sprite.Sprite):
 
         if self.direction == "up":
             if self.y_change == 0:
-                self.image = self.game.player_spritesheet.get_image(32, 96, TILESIZE, TILESIZE)
+                self.image = self.game.player_spritesheet.get_image(32, 96, self.width, self.height)
                 
             else:
                 self.image = upAnimation[math.floor(self.animationCounter)]
@@ -109,7 +115,7 @@ class Player(pygame.sprite.Sprite):
 
         if self.direction == "left":
             if self.x_change == 0:
-                self.image = self.game.player_spritesheet.get_image(32, 32, TILESIZE, TILESIZE)
+                self.image = self.game.player_spritesheet.get_image(32, 32, self.width, self.height)
                 
             else:
                 self.image = leftAnimation[math.floor(self.animationCounter)]
@@ -119,7 +125,7 @@ class Player(pygame.sprite.Sprite):
 
         if self.direction == "right":
             if self.x_change == 0:
-                self.image = self.game.player_spritesheet.get_image(32, 64, TILESIZE, TILESIZE)
+                self.image = self.game.player_spritesheet.get_image(32, 64, self.width, self.height)
                 
             else:
                 self.image = rightAnimation[math.floor(self.animationCounter)]
@@ -130,10 +136,12 @@ class Player(pygame.sprite.Sprite):
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
         super().__init__(game.all_sprites, game.enemies)  # Add to all_sprites and enemies group
+        self.width = TILESIZE
+        self.height = TILESIZE        
         
         self.game = game
-        self.image = game.enemy_spritesheet.get_image(0, 0, TILESIZE, TILESIZE)
-        self.rect = self.image.get_rect(topleft=(x * TILESIZE, y * TILESIZE))
+        self.image = game.enemy_spritesheet.get_image(0, 0, self.width, self.height)
+        self.rect = self.image.get_rect(topleft=(x * self.width, y * self.height))
         
         # Movement attributes
         self.x_change = 0
@@ -191,25 +199,25 @@ class Enemy(pygame.sprite.Sprite):
 
     def animation(self):
         
-        downAnimation = [self.game.enemy_spritesheet.get_image(0, 0, TILESIZE, TILESIZE),
-                         self.game.enemy_spritesheet.get_image(32, 0, TILESIZE, TILESIZE),
-                         self.game.enemy_spritesheet.get_image(64, 0, TILESIZE, TILESIZE)]
+        downAnimation = [self.game.enemy_spritesheet.get_image(0, 0, self.width, self.height),
+                         self.game.enemy_spritesheet.get_image(32, 0, self.width, self.height),
+                         self.game.enemy_spritesheet.get_image(64, 0, self.width, self.height)]
 
-        leftAnimation = [self.game.enemy_spritesheet.get_image(0, 32, TILESIZE, TILESIZE),
-                         self.game.enemy_spritesheet.get_image(32, 32, TILESIZE, TILESIZE),
-                         self.game.enemy_spritesheet.get_image(64, 32, TILESIZE, TILESIZE)]
+        leftAnimation = [self.game.enemy_spritesheet.get_image(0, 32, self.width, self.height),
+                         self.game.enemy_spritesheet.get_image(32, 32, self.width, self.height),
+                         self.game.enemy_spritesheet.get_image(64, 32, self.width, self.height)]
 
-        rightAnimation = [self.game.enemy_spritesheet.get_image(0, 64, TILESIZE, TILESIZE),
-                         self.game.enemy_spritesheet.get_image(32, 64, TILESIZE, TILESIZE),
-                         self.game.enemy_spritesheet.get_image(64, 64, TILESIZE, TILESIZE)]
+        rightAnimation = [self.game.enemy_spritesheet.get_image(0, 64, self.width, self.height),
+                         self.game.enemy_spritesheet.get_image(32, 64, self.width, self.height),
+                         self.game.enemy_spritesheet.get_image(64, 64, self.width, self.height)]
 
-        upAnimation = [self.game.enemy_spritesheet.get_image(0, 96, TILESIZE, TILESIZE),
-                         self.game.enemy_spritesheet.get_image(32, 96, TILESIZE, TILESIZE),
-                         self.game.enemy_spritesheet.get_image(64, 96, TILESIZE, TILESIZE)]
+        upAnimation = [self.game.enemy_spritesheet.get_image(0, 96, self.width, self.height),
+                         self.game.enemy_spritesheet.get_image(32, 96, self.width, self.height),
+                         self.game.enemy_spritesheet.get_image(64, 96, self.width, self.height)]
         
         if self.direction == "down":
             if self.y_change == 0:
-                self.image = self.game.enemy_spritesheet.get_image(32, 0, TILESIZE, TILESIZE)
+                self.image = self.game.enemy_spritesheet.get_image(32, 0, self.width, self.height)
                 
             else:
                 self.image = downAnimation[math.floor(self.animationCounter)]
@@ -219,7 +227,7 @@ class Enemy(pygame.sprite.Sprite):
 
         if self.direction == "up":
             if self.y_change == 0:
-                self.image = self.game.enemy_spritesheet.get_image(32, 96, TILESIZE, TILESIZE)
+                self.image = self.game.enemy_spritesheet.get_image(32, 96, self.width, self.height)
                 
             else:
                 self.image = upAnimation[math.floor(self.animationCounter)]
@@ -229,7 +237,7 @@ class Enemy(pygame.sprite.Sprite):
 
         if self.direction == "left":
             if self.x_change == 0:
-                self.image = self.game.enemy_spritesheet.get_image(32, 32, TILESIZE, TILESIZE)
+                self.image = self.game.enemy_spritesheet.get_image(32, 32, self.width, self.height)
                 
             else:
                 self.image = leftAnimation[math.floor(self.animationCounter)]
@@ -239,7 +247,7 @@ class Enemy(pygame.sprite.Sprite):
 
         if self.direction == "right":
             if self.x_change == 0:
-                self.image = self.game.enemy_spritesheet.get_image(32, 64, TILESIZE, TILESIZE)
+                self.image = self.game.enemy_spritesheet.get_image(32, 64, self.width, self.height)
                 
             else:
                 self.image = rightAnimation[math.floor(self.animationCounter)]

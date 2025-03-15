@@ -6,7 +6,7 @@ from groups import AllSprites
 class Game:
     def __init__(self):
         pygame.init()
-        self.screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+        self.screen = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
         pygame.display.set_caption('Basic RPG')
         self.clock = pygame.time.Clock()
         self.running = True
@@ -43,7 +43,7 @@ class Game:
                 if column == 'E':
                     enemy = Enemy(self, j, i)
                     self.all_sprites.change_layer(enemy, 1)  # Set enemy layer
-    
+
     def update(self):
         self.all_sprites.update()
     

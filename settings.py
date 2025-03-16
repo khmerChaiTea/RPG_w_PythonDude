@@ -17,8 +17,8 @@ BLOCKS_LAYER = 2
 GROUND_LAYER = 1
 
 # Movement steps
-PLAYER_STEPS = 100 # Adjust speed as needed (200 pixels per second when use with dt)
-ENEMY_STEPS = 75
+PLAYER_STEPS = 85 # Adjust speed as needed (200 pixels per second when use with dt)
+ENEMY_STEPS = 80
 BULLET_STEPS = 6
 
 # Health values

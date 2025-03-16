@@ -46,6 +46,7 @@ class Player(pygame.sprite.Sprite):
         # Movement attributes
         self.direction = pygame.math.Vector2(0, 0)  # Movement vector (x, y)
         self.current_direction = "down"  # Track the current direction for animation
+        self.player_steps = PLAYER_STEPS
         
         self.animation_counter = 0
         self.collision_sprites = game.blocks  # Use the game's block group
@@ -83,33 +84,39 @@ class Player(pygame.sprite.Sprite):
 
         # Detect movement based on key presses
         if pressed[pygame.K_LEFT] or pressed[pygame.K_a]:
-            self.direction.x = -PLAYER_STEPS * dt
+            self.direction.x = -self.player_steps * dt
             self.current_direction = "left"
         elif pressed[pygame.K_RIGHT] or pressed[pygame.K_d]:
-            self.direction.x = PLAYER_STEPS * dt
+            self.direction.x = self.player_steps * dt
             self.current_direction = "right"            
         elif pressed[pygame.K_UP] or pressed[pygame.K_w]:
-            self.direction.y = -PLAYER_STEPS * dt
+            self.direction.y = -self.player_steps * dt
             self.current_direction = "up"   
         elif pressed[pygame.K_DOWN] or pressed[pygame.K_s]:
-            self.direction.y = PLAYER_STEPS * dt
+            self.direction.y = self.player_steps * dt
             self.current_direction = "down"
 
     def update(self, dt):
-        # Step 1: Handle player movement (first)
+        # Handle player movement (first)
         self.move(dt)  # Update movement based on key press
         
-        # Step 2: Check for collisions with blocks (before updating the position)
+        # Check for collisions with blocks (before updating the position)
         self.hitbox_rect.x += round(self.direction.x)
         self.collide_block("horizontal")  # Collide in horizontal direction
         
         self.hitbox_rect.y += round(self.direction.y)
         self.collide_block("vertical")   # Collide in vertical direction
+
+        self.hitbox_rect.x += round(self.direction.x)
+        self.collide_enemy("horizontal")  # Collide in horizontal direction
         
-        # Step 3: Update player rect position after handling collisions
+        self.hitbox_rect.y += round(self.direction.y)
+        self.collide_enemy("vertical")   # Collide in vertical direction
+        
+        # Update player rect position after handling collisions
         self.rect.topleft = self.hitbox_rect.topleft  # Update sprite position
         
-        # Step 4: Animate the player if moving
+        # Animate the player if moving
         self.animation()
             
     def animation(self):
@@ -127,21 +134,79 @@ class Player(pygame.sprite.Sprite):
             self.image = self.animations[self.current_direction][0]  # Show the first frame of the current direction
 
     def collide_block(self, direction):
-        for sprite in self.collision_sprites:
-            if self.hitbox_rect.colliderect(sprite.rect):
-                if direction == "horizontal":
-                    if self.direction.x > 0:
-                        self.hitbox_rect.right = sprite.rect.left  # Prevent movement to the right
-                    if self.direction.x < 0:
-                        self.hitbox_rect.left = sprite.rect.right  # Prevent movement to the left
+        # Use a displacement vector instead of modifying the hitbox directly
+        next_hitbox_rect = self.hitbox_rect.copy()
+        next_hitbox_rect.x += round(self.direction.x)
+        next_hitbox_rect.y += round(self.direction.y)
+    
+        collideBlock = pygame.sprite.spritecollide(self, self.game.blocks, False, pygame.sprite.collide_rect_ratio(0.75))
 
-                if direction == "vertical":
-                    if self.direction.y > 0:
-                        self.hitbox_rect.bottom = sprite.rect.top  # Prevent movement downward
-                    if self.direction.y < 0:
-                        self.hitbox_rect.top = sprite.rect.bottom  # Prevent movement upward
-                        self.direction.y = 0  # Stop vertical movement after collision
-                   
+        if collideBlock:
+            # Initialize a list to hold the distance of each corner
+            overlap_distances = []
+
+            # Check distances for the corners of the player's hitbox
+            corners = [
+                (self.hitbox_rect.topleft, "top left"),
+                (self.hitbox_rect.topright, "top right"),
+                (self.hitbox_rect.bottomleft, "bottom left"),
+                (self.hitbox_rect.bottomright, "bottom right")
+            ]
+
+            for corner, position in corners:
+                for sprite in collideBlock:
+                    # Calculate the distance between the corner and the block
+                    dist_x = corner[0] - sprite.rect.centerx
+                    dist_y = corner[1] - sprite.rect.centery
+                    distance = math.sqrt(dist_x**2 + dist_y**2)
+                    overlap_distances.append((distance, position, sprite))
+
+            # Sort by distance to find the closest collision
+            overlap_distances.sort(key=lambda x: x[0])
+
+            # Now handle the closest overlap
+            closest = overlap_distances[0]  # Get the closest collision
+            _, position, sprite = closest
+
+            # Handle collision based on the closest overlap
+            if direction == "horizontal":
+                if self.direction.x > 0:  # Moving right
+                    self.hitbox_rect.right = sprite.rect.left
+                    self.direction.x = 0
+                elif self.direction.x < 0:  # Moving left
+                    self.hitbox_rect.left = sprite.rect.right
+                    self.direction.x = 0
+
+            elif direction == "vertical":
+                if self.direction.y > 0:  # Moving down
+                    self.hitbox_rect.bottom = sprite.rect.top
+                    self.direction.y = 0
+                elif self.direction.y < 0:  # Moving up
+                    self.hitbox_rect.top = sprite.rect.bottom
+                    self.direction.y = 0
+
+        else:
+            # No collision, allow movement to continue
+            self.player_step = PLAYER_STEPS
+
+    def collide_enemy(self, direction):
+        collideBlock = pygame.sprite.spritecollide(self, self.game.enemies, False, pygame.sprite.collide_rect_ratio(0.75))
+
+        if collideBlock:
+                # Handle collision based on the closest overlap
+                for sprite in collideBlock:  # Loop through the colliding enemies
+                    if direction == "horizontal":
+                        if self.direction.x >= 0:  # Moving right
+                            self.hitbox_rect.right = sprite.rect.left
+                        elif self.direction.x <= 0:  # Moving left
+                            self.hitbox_rect.left = sprite.rect.right
+
+                    elif direction == "vertical":
+                        if self.direction.y >= 0:  # Moving down
+                            self.hitbox_rect.bottom = sprite.rect.top
+                        elif self.direction.y <= 0:  # Moving up
+                            self.hitbox_rect.top = sprite.rect.bottom
+
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
         super().__init__(game.all_sprites, game.enemies)  
@@ -278,7 +343,7 @@ class Enemy(pygame.sprite.Sprite):
 
         if direction == "vertical":
             if self.y_change > 0:  # Moving down
-                self.rect.bottom = sprite.rect.top  # Stop movement downward
+                self.rect.bottom = sprite.rect.top  # Stop movement downward10
                 self.direction = "up"  # Face up after collision
             elif self.y_change < 0:  # Moving up
                 self.rect.top = sprite.rect.bottom  # Stop movement upward
